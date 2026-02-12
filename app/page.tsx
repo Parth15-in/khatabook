@@ -220,9 +220,7 @@ export default function Home() {
           className="bg-[#fffdfa] border border-[#a32a2a]/20 p-8 md:p-10 shadow-xl max-w-sm w-full relative z-10 rounded-lg"
         >
           <div className="text-center mb-10">
-            <BookOpen className="w-10 h-10 text-[#a32a2a] mx-auto mb-4 opacity-80" />
-            <h2 className="text-2xl font-bold text-[#443322] tracking-tight">Cloud Ledger</h2>
-            <p className="text-[#887766] text-sm mt-1">Safe & Permanent Cloud Access</p>
+            <h2 className="text-2xl font-bold text-[#443322] tracking-tight">Khatabook</h2>
           </div>
 
           <form onSubmit={handleAuth} className="space-y-5">
