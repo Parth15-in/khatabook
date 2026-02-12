@@ -1,0 +1,13 @@
+
+> myapp@0.1.0 lint
+> eslint
+
+
+C:\Users\Parth\Rozmet\myapp\app\bookkeeping\page.tsx
+    4:97  warning  'User' is defined but never used          @typescript-eslint/no-unused-vars
+   16:3   warning  'getDoc' is defined but never used        @typescript-eslint/no-unused-vars
+   55:14  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  108:21  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Γ£û 4 problems (1 error, 3 warnings)
+
