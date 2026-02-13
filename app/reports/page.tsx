@@ -132,6 +132,22 @@ export default function Reports() {
 
     const handleLogout = () => signOut(auth);
 
+    const SkeletonCard = () => (
+        <div className="bg-white border border-[#a32a2a]/10 p-7 rounded-lg shadow-sm">
+            <div className="h-3 w-24 bg-gray-100 animate-shimmer rounded mb-4"></div>
+            <div className="h-8 w-32 bg-gray-100 animate-shimmer rounded"></div>
+        </div>
+    );
+
+    const SkeletonTableRow = () => (
+        <tr>
+            <td className="px-8 py-4"><div className="h-4 w-20 bg-gray-100 animate-shimmer rounded"></div></td>
+            <td className="px-8 py-4"><div className="h-4 w-40 bg-gray-100 animate-shimmer rounded"></div></td>
+            <td className="px-8 py-4"><div className="h-4 w-16 bg-gray-100 animate-shimmer rounded"></div></td>
+            <td className="px-8 py-4 text-right"><div className="h-4 w-20 bg-gray-100 animate-shimmer rounded ml-auto"></div></td>
+        </tr>
+    );
+
     const downloadPDF = () => {
         const doc = new jsPDF() as any;
 
@@ -302,7 +318,13 @@ export default function Reports() {
 
                 {/* Summary Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                    {[
+                    {isDataLoading ? (
+                        <>
+                            <SkeletonCard />
+                            <SkeletonCard />
+                            <SkeletonCard />
+                        </>
+                    ) : [
                         { label: "Total Period Income", value: totals.income, color: "text-[#2e7d32]", bg: "bg-white", icon: <TrendingUp className="w-4 h-4" /> },
                         { label: "Total Period Expense", value: totals.expense, color: "text-[#c62828]", bg: "bg-white", icon: <TrendingDown className="w-4 h-4" /> },
                         { label: "Net Period Profit", value: totals.income - totals.expense, color: "text-white", bg: "bg-[#a32a2a]", dark: true, icon: <Filter className="w-4 h-4" /> }
@@ -328,26 +350,33 @@ export default function Reports() {
                 </div>
 
                 {/* Report Table */}
-                <div className="bg-[#fffdfa] border border-[#a32a2a]/15 shadow-xl rounded-lg overflow-hidden relative mb-12">
-                    {isDataLoading ? (
-                        <div className="p-20 text-center animate-pulse">
-                            <div className="text-[#a32a2a]/20 font-bold uppercase tracking-[0.4em]">Compiling Records...</div>
-                        </div>
-                    ) : reportData.length === 0 ? (
-                        <div className="p-20 text-center text-[#887766]/30 font-bold italic">No records found for this period</div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-[#a32a2a]/[0.02] border-b border-[#a32a2a]/10">
-                                        <th className="px-8 py-5 text-[10px] font-bold text-[#887766] uppercase tracking-wider">Date</th>
-                                        <th className="px-8 py-5 text-[10px] font-bold text-[#887766] uppercase tracking-wider">Description</th>
-                                        <th className="px-8 py-5 text-[10px] font-bold text-[#887766] uppercase tracking-wider">Type</th>
-                                        <th className="px-8 py-5 text-[10px] font-bold text-[#887766] uppercase tracking-wider text-right">Amount</th>
+                <div className="bg-[#fffdfa] border border-[#a32a2a]/15 shadow-xl rounded-lg overflow-hidden relative mb-12 transition-all">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-[#a32a2a]/[0.02] border-b border-[#a32a2a]/10">
+                                    <th className="px-8 py-5 text-[10px] font-bold text-[#887766] uppercase tracking-wider">Date</th>
+                                    <th className="px-8 py-5 text-[10px] font-bold text-[#887766] uppercase tracking-wider">Description</th>
+                                    <th className="px-8 py-5 text-[10px] font-bold text-[#887766] uppercase tracking-wider">Type</th>
+                                    <th className="px-8 py-5 text-[10px] font-bold text-[#887766] uppercase tracking-wider text-right">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#a32a2a]/5">
+                                {isDataLoading ? (
+                                    <>
+                                        <SkeletonTableRow />
+                                        <SkeletonTableRow />
+                                        <SkeletonTableRow />
+                                        <SkeletonTableRow />
+                                    </>
+                                ) : reportData.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={4} className="p-20 text-center text-[#887766]/30 font-bold italic">
+                                            No records found for this period
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody className="divide-y divide-[#a32a2a]/5">
-                                    {reportData.map((item, idx) => (
+                                ) : (
+                                    reportData.map((item, idx) => (
                                         <tr key={`${item.date}-${item.id}`} className="hover:bg-[#a32a2a]/[0.01] transition-colors">
                                             <td className="px-8 py-4 text-xs font-semibold text-[#887766]">{format(parseISO(item.date), 'dd MMM yyyy')}</td>
                                             <td className="px-8 py-4 text-sm font-medium">{item.description}</td>
@@ -362,11 +391,11 @@ export default function Reports() {
                                                 ₹{item.amount.toLocaleString('en-IN')}
                                             </td>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 {/* Download Section */}

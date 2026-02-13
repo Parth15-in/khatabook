@@ -196,6 +196,13 @@ export default function Home() {
     setSelectedDate(current.toISOString().split('T')[0]);
   };
 
+  const SkeletonRow = () => (
+    <div className="flex justify-between items-center py-5 border-b border-[#a32a2a]/5">
+      <div className="h-4 w-32 bg-gray-100 animate-shimmer rounded"></div>
+      <div className="h-6 w-20 bg-gray-100 animate-shimmer rounded"></div>
+    </div>
+  );
+
   if (firebaseConfigError) {
     return (
       <div className="min-h-screen bg-[#fcfaf5] flex items-center justify-center p-4">
@@ -410,7 +417,9 @@ export default function Home() {
               <div className="space-y-0 sleek-ledger-lines">
                 <AnimatePresence mode="popLayout">
                   {isDataLoading ? (
-                    <div className="text-center py-20 opacity-20 font-bold text-sm tracking-widest animate-pulse">SYNCING...</div>
+                    <div className="space-y-0">
+                      {[1, 2, 3].map(i => <SkeletonRow key={i} />)}
+                    </div>
                   ) : earnings.length === 0 ? (
                     <motion.div className="text-center py-20 opacity-10 font-bold text-sm uppercase tracking-widest italic">No Data Entry</motion.div>
                   ) : (
@@ -470,7 +479,9 @@ export default function Home() {
               <div className="space-y-0 sleek-ledger-lines">
                 <AnimatePresence mode="popLayout">
                   {isDataLoading ? (
-                    <div className="text-center py-20 opacity-20 font-bold text-sm tracking-widest animate-pulse">SYNCING...</div>
+                    <div className="space-y-0">
+                      {[1, 2, 3].map(i => <SkeletonRow key={i} />)}
+                    </div>
                   ) : expenses.length === 0 ? (
                     <motion.div className="text-center py-20 opacity-10 font-bold text-sm uppercase tracking-widest italic">No Data Entry</motion.div>
                   ) : (
