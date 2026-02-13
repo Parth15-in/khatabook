@@ -335,9 +335,9 @@ export default function Home() {
     <div className="min-h-screen bg-[#f9f7f2] text-[#443322] p-4 md:p-10 font-sans selection:bg-[#a32a2a]/10">
       <div className="max-w-6xl mx-auto relative">
         <header className="flex flex-col items-center mb-16 space-y-8">
-          <div className="flex justify-between items-center w-full text-[#a32a2a]/60 text-xs font-semibold tracking-widest uppercase border-b border-[#a32a2a]/5 pb-4">
-            <span className="flex items-center gap-2"><Mail className="w-3.5 h-3.5" /> {user.email}</span>
-            <div className="flex items-center gap-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center w-full text-[#a32a2a]/60 text-[10px] sm:text-xs font-semibold tracking-widest uppercase border-b border-[#a32a2a]/5 pb-4 gap-4 sm:gap-0">
+            <span className="flex items-center gap-2 order-2 sm:order-1"><Mail className="w-3.5 h-3.5" /> {user.email}</span>
+            <div className="flex items-center gap-4 sm:gap-6 order-1 sm:order-2">
               <Link href="/reports" className="hover:text-[#a32a2a] transition-colors flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Reports</Link>
               <button onClick={handleLogout} className="hover:text-[#a32a2a] transition-colors flex items-center gap-1.5"><LogOut className="w-3.5 h-3.5" /> Sign Out</button>
             </div>

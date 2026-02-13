@@ -22,8 +22,6 @@ import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth
 import { collection, getDocs, doc, onSnapshot, query, where, orderBy, documentId } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase";
 import { format, subMonths, isWithinInterval, parseISO, startOfDay, endOfDay } from "date-fns";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
 
 const ReportsContent = dynamic(() => import("../components/ReportsContent"), {
     loading: () => <SkeletonTable />,
@@ -145,55 +143,65 @@ export default function Reports() {
 
     const handleLogout = () => signOut(auth);
 
-    const downloadPDF = () => {
-        const doc = new jsPDF() as any;
+    const downloadPDF = async () => {
+        setIsDataLoading(true);
+        try {
+            const { jsPDF } = await import("jspdf");
+            const autoTable = (await import("jspdf-autotable")).default;
 
-        // Header
-        doc.setFontSize(22);
-        doc.setTextColor(68, 51, 34); // #443322
-        doc.text("Khatabook - Financial Report", 14, 22);
+            const doc = new jsPDF() as any;
 
-        doc.setFontSize(12);
-        doc.setTextColor(136, 119, 102); // #887766
-        doc.text(`Period: ${format(parseISO(startDate), 'dd MMM yyyy')} to ${format(parseISO(endDate), 'dd MMM yyyy')}`, 14, 32);
-        doc.text(`Generated for: ${user?.email}`, 14, 38);
+            // Header
+            doc.setFontSize(22);
+            doc.setTextColor(68, 51, 34); // #443322
+            doc.text("Khatabook - Financial Report", 14, 22);
 
-        // Summary Cards
-        doc.setDrawColor(163, 42, 42, 0.2); // #a32a2a with opacity
-        doc.rect(14, 45, 182, 30);
+            doc.setFontSize(12);
+            doc.setTextColor(136, 119, 102); // #887766
+            doc.text(`Period: ${format(parseISO(startDate), 'dd MMM yyyy')} to ${format(parseISO(endDate), 'dd MMM yyyy')}`, 14, 32);
+            doc.text(`Generated for: ${user?.email}`, 14, 38);
 
-        doc.setFontSize(10);
-        doc.text("TOTAL INCOME", 20, 55);
-        doc.text("TOTAL EXPENSE", 80, 55);
-        doc.text("NET PROFIT", 140, 55);
+            // Summary Cards
+            doc.setDrawColor(163, 42, 42, 0.2); // #a32a2a with opacity
+            doc.rect(14, 45, 182, 30);
 
-        doc.setFontSize(14);
-        doc.setTextColor(46, 125, 50); // green
-        doc.text(`Rs. ${totals.income.toLocaleString()}`, 20, 65);
+            doc.setFontSize(10);
+            doc.text("TOTAL INCOME", 20, 55);
+            doc.text("TOTAL EXPENSE", 80, 55);
+            doc.text("NET PROFIT", 140, 55);
 
-        doc.setTextColor(198, 40, 40); // red
-        doc.text(`Rs. ${totals.expense.toLocaleString()}`, 80, 65);
+            doc.setFontSize(14);
+            doc.setTextColor(46, 125, 50); // green
+            doc.text(`Rs. ${totals.income.toLocaleString()}`, 20, 65);
 
-        doc.setTextColor(68, 51, 34);
-        doc.text(`Rs. ${(totals.income - totals.expense).toLocaleString()}`, 140, 65);
+            doc.setTextColor(198, 40, 40); // red
+            doc.text(`Rs. ${totals.expense.toLocaleString()}`, 80, 65);
 
-        // Table
-        const tableData = reportData.map(item => [
-            item.date,
-            item.description,
-            item.type === 'earning' ? 'Income' : 'Expense',
-            `Rs. ${item.amount.toLocaleString()}`
-        ]);
+            doc.setTextColor(68, 51, 34);
+            doc.text(`Rs. ${(totals.income - totals.expense).toLocaleString()}`, 140, 65);
 
-        autoTable(doc, {
-            startY: 85,
-            head: [['Date', 'Description', 'Type', 'Amount']],
-            body: tableData,
-            headStyles: { fillColor: [163, 42, 42] },
-            alternateRowStyles: { fillColor: [252, 250, 245] },
-        });
+            // Table
+            const tableData = reportData.map(item => [
+                item.date,
+                item.description,
+                item.type === 'earning' ? 'Income' : 'Expense',
+                `Rs. ${item.amount.toLocaleString()}`
+            ]);
 
-        doc.save(`Khatabook_Report_${startDate}_to_${endDate}.pdf`);
+            autoTable(doc, {
+                startY: 85,
+                head: [['Date', 'Description', 'Type', 'Amount']],
+                body: tableData,
+                headStyles: { fillColor: [163, 42, 42] },
+                alternateRowStyles: { fillColor: [252, 250, 245] },
+            });
+
+            doc.save(`Khatabook_Report_${startDate}_to_${endDate}.pdf`);
+        } catch (err) {
+            console.error("PDF generation failed", err);
+        } finally {
+            setIsDataLoading(false);
+        }
     };
 
     if (isAuthLoading) {
@@ -222,11 +230,11 @@ export default function Reports() {
 
                 {/* Header */}
                 <header className="flex flex-col items-center mb-12 space-y-8">
-                    <div className="flex justify-between items-center w-full text-[#a32a2a]/60 text-xs font-semibold tracking-widest uppercase border-b border-[#a32a2a]/5 pb-4">
-                        <Link href="/" className="hover:text-[#a32a2a] transition-colors flex items-center gap-1.5">
+                    <div className="flex flex-col sm:flex-row justify-between items-center w-full text-[#a32a2a]/60 text-[10px] sm:text-xs font-semibold tracking-widest uppercase border-b border-[#a32a2a]/5 pb-4 gap-4 sm:gap-0">
+                        <Link href="/" className="hover:text-[#a32a2a] transition-colors flex items-center gap-1.5 order-2 sm:order-1">
                             <ArrowLeft className="w-3.5 h-3.5" /> Back to Ledger
                         </Link>
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-4 sm:gap-6 order-1 sm:order-2">
                             <span className="flex items-center gap-2"><Mail className="w-3.5 h-3.5" /> {user.email}</span>
                             <button onClick={handleLogout} className="hover:text-[#a32a2a] transition-colors flex items-center gap-1.5">
                                 <LogOut className="w-3.5 h-3.5" /> Sign Out
@@ -351,16 +359,16 @@ export default function Reports() {
                 />
 
                 {/* Download Section */}
-                <div className="flex flex-col items-center gap-4 mb-20">
+                <div className="flex flex-col items-center gap-4 mb-20 px-6 box-border">
                     <button
                         onClick={downloadPDF}
                         disabled={reportData.length === 0}
-                        className="group flex items-center gap-3 bg-[#a32a2a] text-white px-10 py-4 rounded-full font-bold shadow-lg hover:bg-[#8b2323] transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
+                        className="group flex items-center justify-center gap-3 bg-[#a32a2a] text-white w-full max-w-sm py-4 rounded-full font-bold shadow-lg hover:bg-[#8b2323] transition-all active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
                     >
                         <Download className="w-5 h-5 group-hover:translate-y-0.5 transition-transform" />
-                        Download Monthly Report (PDF)
+                        <span className="truncate">Download Monthly Report (PDF)</span>
                     </button>
-                    <p className="text-[10px] text-[#887766]/40 font-bold uppercase tracking-[0.2em]">Full audit trail included</p>
+                    <p className="text-[10px] text-[#887766]/40 font-bold uppercase tracking-[0.2em] text-center">Full audit trail included</p>
                 </div>
 
                 <footer className="text-center text-[#887766]/30 font-semibold text-[10px] tracking-[0.4em] uppercase">

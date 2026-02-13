@@ -24,6 +24,18 @@ const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Enable Offline Persistence
+if (typeof window !== 'undefined') {
+    const { enableIndexedDbPersistence } = require("firebase/firestore");
+    enableIndexedDbPersistence(db).catch((err: any) => {
+        if (err.code === 'failed-precondition') {
+            console.warn("Persistence failed: multiple tabs open");
+        } else if (err.code === 'unimplemented') {
+            console.warn("Persistence is not available in this browser");
+        }
+    });
+}
+
 const googleProvider = new GoogleAuthProvider();
 
 export { app, auth, db, analytics, googleProvider };

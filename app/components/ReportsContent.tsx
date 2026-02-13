@@ -29,13 +29,7 @@ const ReportsContent: React.FC<ReportsContentProps> = ({ isDataLoading, reportDa
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-[#a32a2a]/5">
-                        {isDataLoading ? (
-                            <tr>
-                                <td colSpan={4} className="p-0">
-                                    <SkeletonTable />
-                                </td>
-                            </tr>
-                        ) : reportData.length === 0 ? (
+                        {reportData.length === 0 ? (
                             <tr>
                                 <td colSpan={4} className="p-20 text-center text-[#887766]/30 font-bold italic">
                                     No records found for this period
