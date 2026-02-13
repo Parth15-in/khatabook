@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
-import { collection, getDocs, doc, onSnapshot } from "firebase/firestore";
+import { collection, getDocs, doc, onSnapshot, query, where, orderBy, documentId } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase";
 import { format, subMonths, isWithinInterval, parseISO, startOfDay, endOfDay } from "date-fns";
 import { jsPDF } from "jspdf";
@@ -61,13 +61,19 @@ export default function Reports() {
     useEffect(() => {
         if (!user) return;
 
-        setIsDataLoading(true);
-        const ledgersRef = collection(db, "users", user.uid, "ledgers");
-
-        // Fetch all entries once, then we filter on client
         const fetchLedgers = async () => {
+            setIsDataLoading(true);
+            const ledgersRef = collection(db, "users", user.uid, "ledgers");
+
+            // Optimized: Fetch only entries within the selected range
+            const rangeQuery = query(
+                ledgersRef,
+                where(documentId(), ">=", startDate),
+                where(documentId(), "<=", endDate)
+            );
+
             try {
-                const querySnapshot = await getDocs(ledgersRef);
+                const querySnapshot = await getDocs(rangeQuery);
                 const entries: LedgerEntry[] = [];
                 querySnapshot.forEach((doc) => {
                     entries.push({
@@ -86,7 +92,7 @@ export default function Reports() {
         };
 
         fetchLedgers();
-    }, [user]);
+    }, [user, startDate, endDate]);
 
     // Handle Filter Presets
     useEffect(() => {
