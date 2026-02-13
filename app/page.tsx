@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Calendar, TrendingUp, TrendingDown, BookOpen, ChevronLeft, ChevronRight, LogOut, Lock, Mail, AlertCircle } from "lucide-react";
+import Link from "next/link";
+import { Plus, Trash2, Calendar, TrendingUp, TrendingDown, BookOpen, ChevronLeft, ChevronRight, LogOut, Lock, Mail, AlertCircle, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   createUserWithEmailAndPassword,
@@ -40,7 +41,8 @@ export default function Home() {
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [earnings, setEarnings] = useState<Item[]>([]);
   const [expenses, setExpenses] = useState<Item[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [isDataLoading, setIsDataLoading] = useState(false);
 
   const [newEarningDesc, setNewEarningDesc] = useState("");
   const [newEarningAmount, setNewEarningAmount] = useState("");
@@ -63,7 +65,7 @@ export default function Home() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setIsLoading(false);
+      setIsAuthLoading(false);
     });
     return () => unsubscribe();
   }, []);
@@ -72,7 +74,7 @@ export default function Home() {
   useEffect(() => {
     if (!user || !selectedDate) return;
 
-    setIsLoading(true);
+    setIsDataLoading(true);
     const docRef = doc(db, "users", user.uid, "ledgers", selectedDate);
 
     // Using onSnapshot for real-time updates
@@ -85,10 +87,10 @@ export default function Home() {
         setEarnings([]);
         setExpenses([]);
       }
-      setIsLoading(false);
+      setIsDataLoading(false);
     }, (error) => {
       console.error("Firestore error:", error);
-      setIsLoading(false);
+      setIsDataLoading(false);
     });
 
     return () => unsubscribe();
@@ -209,6 +211,19 @@ export default function Home() {
     );
   }
 
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-[#fcfaf5] flex flex-col items-center justify-center p-4">
+        <div className="flex flex-col items-center">
+          <BookOpen className="w-12 h-12 text-[#a32a2a] mb-6 animate-pulse opacity-40" />
+          <div className="text-[#a32a2a]/40 font-bold text-xs tracking-[0.3em] uppercase animate-pulse">
+            Establishing Session...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!user) {
     return (
       <div className="min-h-screen bg-[#fcfaf5] flex items-center justify-center p-4 font-sans selection:bg-[#a32a2a]/20">
@@ -304,7 +319,10 @@ export default function Home() {
         <header className="flex flex-col items-center mb-16 space-y-8">
           <div className="flex justify-between items-center w-full text-[#a32a2a]/60 text-xs font-semibold tracking-widest uppercase border-b border-[#a32a2a]/5 pb-4">
             <span className="flex items-center gap-2"><Mail className="w-3.5 h-3.5" /> {user.email}</span>
-            <button onClick={handleLogout} className="hover:text-[#a32a2a] transition-colors flex items-center gap-1.5"><LogOut className="w-3.5 h-3.5" /> Sign Out</button>
+            <div className="flex items-center gap-6">
+              <Link href="/reports" className="hover:text-[#a32a2a] transition-colors flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Reports</Link>
+              <button onClick={handleLogout} className="hover:text-[#a32a2a] transition-colors flex items-center gap-1.5"><LogOut className="w-3.5 h-3.5" /> Sign Out</button>
+            </div>
           </div>
 
           <div className="flex flex-col items-center text-center">
@@ -391,7 +409,7 @@ export default function Home() {
 
               <div className="space-y-0 sleek-ledger-lines">
                 <AnimatePresence mode="popLayout">
-                  {isLoading ? (
+                  {isDataLoading ? (
                     <div className="text-center py-20 opacity-20 font-bold text-sm tracking-widest animate-pulse">SYNCING...</div>
                   ) : earnings.length === 0 ? (
                     <motion.div className="text-center py-20 opacity-10 font-bold text-sm uppercase tracking-widest italic">No Data Entry</motion.div>
@@ -451,7 +469,7 @@ export default function Home() {
 
               <div className="space-y-0 sleek-ledger-lines">
                 <AnimatePresence mode="popLayout">
-                  {isLoading ? (
+                  {isDataLoading ? (
                     <div className="text-center py-20 opacity-20 font-bold text-sm tracking-widest animate-pulse">SYNCING...</div>
                   ) : expenses.length === 0 ? (
                     <motion.div className="text-center py-20 opacity-10 font-bold text-sm uppercase tracking-widest italic">No Data Entry</motion.div>
