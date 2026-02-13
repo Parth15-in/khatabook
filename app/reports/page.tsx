@@ -244,7 +244,7 @@ export default function Reports() {
 
                     <div className="flex items-center justify-between w-full">
                         <div>
-                            <h1 className="text-4xl font-bold text-[#2d1a13] tracking-tight font-gujarati">ૐ ગણેશાય નમઃ - Reports</h1>
+                            <h1 className="text-4xl font-bold text-[#2d1a13] tracking-tight font-gujarati">ૐ ગણેશાય નમઃ</h1>
                             <p className="text-[#887766]/60 text-sm font-medium mt-2">Track your business growth across time</p>
                         </div>
                     </div>
