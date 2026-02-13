@@ -335,7 +335,7 @@ export default function Home() {
           <div className="flex flex-col items-center text-center">
             <BookOpen className="w-8 h-8 text-[#a32a2a] mb-5 opacity-40" />
             <h1 className="text-4xl md:text-5xl font-bold text-[#2d1a13] tracking-tight">
-              Umiya Hardware & Electrical
+              ૐ ગણેશાય નમઃ
             </h1>
             <div className="h-0.5 w-16 bg-[#a32a2a]/20 mt-6"></div>
           </div>
@@ -358,9 +358,9 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
           {[
-            { label: "Earnings", value: totalEarnings, color: "text-[#2e7d32]", bg: "bg-white" },
-            { label: "Expenses", value: totalExpenses, color: "text-[#c62828]", bg: "bg-white" },
-            { label: "Net Profit", value: balance, color: "text-white", bg: "bg-[#a32a2a]", dark: true }
+            { label: "વ્યાપાર", value: totalEarnings, color: "text-[#2e7d32]", bg: "bg-white" },
+            { label: "ખર્ચ", value: totalExpenses, color: "text-[#c62828]", bg: "bg-white" },
+            { label: "પુરાંત", value: balance, color: "text-white", bg: "bg-[#a32a2a]", dark: true }
           ].map((card, idx) => (
             <motion.div
               key={idx}

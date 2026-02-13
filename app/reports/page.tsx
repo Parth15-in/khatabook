@@ -331,9 +331,9 @@ export default function Reports() {
                             <SkeletonCard />
                         </>
                     ) : [
-                        { label: "Total Period Income", value: totals.income, color: "text-[#2e7d32]", bg: "bg-white", icon: <TrendingUp className="w-4 h-4" /> },
-                        { label: "Total Period Expense", value: totals.expense, color: "text-[#c62828]", bg: "bg-white", icon: <TrendingDown className="w-4 h-4" /> },
-                        { label: "Net Period Profit", value: totals.income - totals.expense, color: "text-white", bg: "bg-[#a32a2a]", dark: true, icon: <Filter className="w-4 h-4" /> }
+                        { label: "કુલ વ્યાપાર", value: totals.income, color: "text-[#2e7d32]", bg: "bg-white", icon: <TrendingUp className="w-4 h-4" /> },
+                        { label: "કુલ ખર્ચ", value: totals.expense, color: "text-[#c62828]", bg: "bg-white", icon: <TrendingDown className="w-4 h-4" /> },
+                        { label: "કુલ પુરાંત", value: totals.income - totals.expense, color: "text-white", bg: "bg-[#a32a2a]", dark: true, icon: <Filter className="w-4 h-4" /> }
                     ].map((card, idx) => (
                         <motion.div
                             key={idx}
