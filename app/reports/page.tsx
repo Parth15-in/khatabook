@@ -16,12 +16,19 @@ import {
     Filter
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
+import { SkeletonCard, SkeletonTable } from "../components/SkeletonLoaders";
 import { onAuthStateChanged, signOut, User as FirebaseUser } from "firebase/auth";
 import { collection, getDocs, doc, onSnapshot, query, where, orderBy, documentId } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase";
 import { format, subMonths, isWithinInterval, parseISO, startOfDay, endOfDay } from "date-fns";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+
+const ReportsContent = dynamic(() => import("../components/ReportsContent"), {
+    loading: () => <SkeletonTable />,
+    ssr: false
+});
 
 interface Item {
     id: string;
@@ -138,22 +145,6 @@ export default function Reports() {
 
     const handleLogout = () => signOut(auth);
 
-    const SkeletonCard = () => (
-        <div className="bg-white border border-[#a32a2a]/10 p-7 rounded-lg shadow-sm">
-            <div className="h-3 w-24 bg-gray-100 animate-shimmer rounded mb-4"></div>
-            <div className="h-8 w-32 bg-gray-100 animate-shimmer rounded"></div>
-        </div>
-    );
-
-    const SkeletonTableRow = () => (
-        <tr>
-            <td className="px-8 py-4"><div className="h-4 w-20 bg-gray-100 animate-shimmer rounded"></div></td>
-            <td className="px-8 py-4"><div className="h-4 w-40 bg-gray-100 animate-shimmer rounded"></div></td>
-            <td className="px-8 py-4"><div className="h-4 w-16 bg-gray-100 animate-shimmer rounded"></div></td>
-            <td className="px-8 py-4 text-right"><div className="h-4 w-20 bg-gray-100 animate-shimmer rounded ml-auto"></div></td>
-        </tr>
-    );
-
     const downloadPDF = () => {
         const doc = new jsPDF() as any;
 
@@ -243,12 +234,11 @@ export default function Reports() {
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-center text-center">
-                        <h1 className="text-3xl md:text-4xl font-bold text-[#2d1a13] tracking-tight mb-2">
-                            Financial Reports
-                        </h1>
-                        <p className="text-[#887766]/60 text-sm font-medium">Track your business growth across time</p>
-                        <div className="h-0.5 w-16 bg-[#a32a2a]/20 mt-6"></div>
+                    <div className="flex items-center justify-between w-full">
+                        <div>
+                            <h1 className="text-4xl font-bold text-[#2d1a13] tracking-tight font-gujarati">ૐ ગણેશાય નમઃ - Reports</h1>
+                            <p className="text-[#887766]/60 text-sm font-medium mt-2">Track your business growth across time</p>
+                        </div>
                     </div>
                 </header>
 
@@ -343,7 +333,7 @@ export default function Reports() {
                             className={`${card.bg} border border-[#a32a2a]/10 p-7 rounded-lg shadow-sm relative overflow-hidden`}
                         >
                             <div className={`flex justify-between items-center mb-4`}>
-                                <div className={`text-[10px] font-bold uppercase tracking-[0.15em] ${card.dark ? 'text-white/60' : 'text-[#887766]'}`}>
+                                <div className={`text-[14px] font-bold uppercase tracking-[0.05em] font-gujarati ${card.dark ? 'text-white/80' : 'text-[#887766]'}`}>
                                     {card.label}
                                 </div>
                                 <div className={card.dark ? 'text-white/40' : 'text-[#a32a2a]/20'}>{card.icon}</div>
@@ -355,54 +345,10 @@ export default function Reports() {
                     ))}
                 </div>
 
-                {/* Report Table */}
-                <div className="bg-[#fffdfa] border border-[#a32a2a]/15 shadow-xl rounded-lg overflow-hidden relative mb-12 transition-all">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="bg-[#a32a2a]/[0.02] border-b border-[#a32a2a]/10">
-                                    <th className="px-8 py-5 text-[10px] font-bold text-[#887766] uppercase tracking-wider">Date</th>
-                                    <th className="px-8 py-5 text-[10px] font-bold text-[#887766] uppercase tracking-wider">Description</th>
-                                    <th className="px-8 py-5 text-[10px] font-bold text-[#887766] uppercase tracking-wider">Type</th>
-                                    <th className="px-8 py-5 text-[10px] font-bold text-[#887766] uppercase tracking-wider text-right">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-[#a32a2a]/5">
-                                {isDataLoading ? (
-                                    <>
-                                        <SkeletonTableRow />
-                                        <SkeletonTableRow />
-                                        <SkeletonTableRow />
-                                        <SkeletonTableRow />
-                                    </>
-                                ) : reportData.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={4} className="p-20 text-center text-[#887766]/30 font-bold italic">
-                                            No records found for this period
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    reportData.map((item, idx) => (
-                                        <tr key={`${item.date}-${item.id}`} className="hover:bg-[#a32a2a]/[0.01] transition-colors">
-                                            <td className="px-8 py-4 text-xs font-semibold text-[#887766]">{format(parseISO(item.date), 'dd MMM yyyy')}</td>
-                                            <td className="px-8 py-4 text-sm font-medium">{item.description}</td>
-                                            <td className="px-8 py-4">
-                                                <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded ${item.type === 'earning' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
-                                                    }`}>
-                                                    {item.type === 'earning' ? 'Income' : 'Expense'}
-                                                </span>
-                                            </td>
-                                            <td className={`px-8 py-4 text-sm font-bold text-right ${item.type === 'earning' ? 'text-green-700' : 'text-red-700'
-                                                }`}>
-                                                ₹{item.amount.toLocaleString('en-IN')}
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <ReportsContent
+                    isDataLoading={isDataLoading}
+                    reportData={reportData}
+                />
 
                 {/* Download Section */}
                 <div className="flex flex-col items-center gap-4 mb-20">
